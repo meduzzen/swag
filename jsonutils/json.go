@@ -17,27 +17,13 @@ package jsonutils
 import (
 	"bytes"
 	"encoding/json"
-
-	"github.com/mailru/easyjson"
-	"github.com/mailru/easyjson/jlexer"
-	"github.com/mailru/easyjson/jwriter"
 )
-
-type ejMarshaler = easyjson.Marshaler
-type ejUnmarshaler = easyjson.Unmarshaler
 
 // WriteJSON marshals a data structure as JSON.
 //
 // The difference with [json.Marshal] is that it may check among several alternatives
 // to do so.
-//
-// Currently this allows types that are [easyjson.Marshaler]s to use that route to produce JSON.
 func WriteJSON(value interface{}) ([]byte, error) {
-	if d, ok := value.(ejMarshaler); ok {
-		jw := new(jwriter.Writer)
-		d.MarshalEasyJSON(jw)
-		return jw.BuildBytes()
-	}
 	if d, ok := value.(json.Marshaler); ok {
 		return d.MarshalJSON()
 	}
@@ -48,15 +34,8 @@ func WriteJSON(value interface{}) ([]byte, error) {
 //
 // The difference with [json.Unmarshal] is that it may check among several alternatives
 // to do so.
-//
-// Currently this allows types that are [easyjson.Unmarshaler]s to use that route to process JSON.
 func ReadJSON(data []byte, value interface{}) error {
 	trimmedData := bytes.Trim(data, "\x00")
-	if d, ok := value.(ejUnmarshaler); ok {
-		jl := &jlexer.Lexer{Data: trimmedData}
-		d.UnmarshalEasyJSON(jl)
-		return jl.Error()
-	}
 
 	if d, ok := value.(json.Unmarshaler); ok {
 		return d.UnmarshalJSON(trimmedData)
