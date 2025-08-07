@@ -18,7 +18,6 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/mailru/easyjson/jlexer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -136,7 +135,7 @@ func TestJSONMapSlice(t *testing.T) {
 
 		require.Equal(t, sd, string(jazon)) // specifically check the same order, not JSONEq()
 
-		t.Run("should Read/Write JSON using easyJSON", func(t *testing.T) {
+		t.Run("should Read/Write JSON using CustomJSON", func(t *testing.T) {
 			var obj interface{}
 			require.NoError(t, FromDynamicJSON(data, &obj))
 
@@ -150,7 +149,8 @@ func TestJSONMapSlice(t *testing.T) {
 		})
 	})
 
-	t.Run("UnmarshalEasyJSON with error cases", func(t *testing.T) {
+	// TODO: ensure error cases are passing
+	t.Run("UnmarshalCustomJSON with error cases", func(t *testing.T) {
 		// test directly this endpoint, as the json standard library
 		// performs a preventive early check for well-formed JSON.
 		t.Run("on invalid token (1)", func(t *testing.T) {
@@ -166,44 +166,38 @@ func TestJSONMapSlice(t *testing.T) {
 		t.Run("on invalid token (3)", func(t *testing.T) {
 			const sd = `{"a":[ai+b,"b":2,"c":3,"d":4}`
 			data := make(JSONMapSlice, 0)
-			l := jlexer.Lexer{Data: []byte(sd)}
-			data.UnmarshalEasyJSON(&l)
-			require.Error(t, l.Error())
+			err := data.UnmarshalJSON([]byte(sd))
+			require.Error(t, err)
 		})
 		t.Run("on invalid delimiter (1)", func(t *testing.T) {
 			const sd = `{"a":1`
 			data := make(JSONMapSlice, 0)
-			l := jlexer.Lexer{Data: []byte(sd)}
-			data.UnmarshalEasyJSON(&l)
-			require.Error(t, l.Error())
+			err := data.UnmarshalJSON([]byte(sd))
+			require.Error(t, err)
 		})
 		t.Run("on invalid delimiter (2)", func(t *testing.T) {
 			const sd = `{"a":[1}`
 			data := make(JSONMapSlice, 0)
-			l := jlexer.Lexer{Data: []byte(sd)}
-			data.UnmarshalEasyJSON(&l)
-			require.Error(t, l.Error())
+			err := data.UnmarshalJSON([]byte(sd))
+			require.Error(t, err)
 		})
 		t.Run("on invalid delimiter (3)", func(t *testing.T) {
 			const sd = `{"a":[1,]}`
 			data := make(JSONMapSlice, 0)
-			l := jlexer.Lexer{Data: []byte(sd)}
-			data.UnmarshalEasyJSON(&l)
-			require.Error(t, l.Error())
+			err := data.UnmarshalJSON([]byte(sd))
+			require.Error(t, err)
 		})
 		t.Run("on invalid delimiter (4)", func(t *testing.T) {
 			const sd = `{"a":[1],}`
 			data := make(JSONMapSlice, 0)
-			l := jlexer.Lexer{Data: []byte(sd)}
-			data.UnmarshalEasyJSON(&l)
-			require.Error(t, l.Error())
+			err := data.UnmarshalJSON([]byte(sd))
+			require.Error(t, err)
 		})
 		t.Run("on invalid delimiter (4)", func(t *testing.T) {
 			const sd = `{"a":{"b":1}`
 			data := make(JSONMapSlice, 0)
-			l := jlexer.Lexer{Data: []byte(sd)}
-			data.UnmarshalEasyJSON(&l)
-			require.Error(t, l.Error())
+			err := data.UnmarshalJSON([]byte(sd))
+			require.Error(t, err)
 		})
 	})
 }
