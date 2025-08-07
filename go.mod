@@ -1,4 +1,4 @@
-module github.com/go-openapi/swag
+module github.com/meduzzen/swag
 
 require (
 	github.com/go-openapi/swag/cmdutils v0.0.0-00010101000000-000000000000
